@@ -1,35 +1,48 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React, { useState } from "react";
+import { AntDesign } from "@expo/vector-icons";
 
 const TodoCard = (props) => {
   const { title, id, completed } = props.item;
+  const toggleTodoStatus = props.toggleTodoStatus;
+  const deleteTodo = props.deleteTodo;
 
   const [isCompleted, setIsCompleted] = useState(completed);
 
   const toggleCompleted = () => {
     setIsCompleted((prev) => !prev);
+    toggleTodoStatus(id);
   };
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={[styles.check]} onPress={toggleCompleted}>
-        <View
+      <View style={{ flexDirection: "row", gap: 10 }}>
+        <TouchableOpacity style={[styles.check]} onPress={toggleCompleted}>
+          <View
+            style={[
+              isCompleted && {
+                backgroundColor: "black",
+                width: 10,
+                height: 10,
+              },
+            ]}
+          />
+        </TouchableOpacity>
+        <Text
           style={[
-            isCompleted && { backgroundColor: "black", width: 10, height: 10 },
+            styles.text,
+            isCompleted && {
+              textDecorationLine: "line-through",
+              color: "lightgray",
+            },
           ]}
-        />
+        >
+          {title}
+        </Text>
+      </View>
+      <TouchableOpacity onPress={() => deleteTodo(id)}>
+        <AntDesign name="delete" size={20} color="red" />
       </TouchableOpacity>
-      <Text
-        style={[
-          styles.text,
-          isCompleted && {
-            textDecorationLine: "line-through",
-            color: "lightgray",
-          },
-        ]}
-      >
-        {title}
-      </Text>
     </View>
   );
 };
@@ -39,13 +52,14 @@ export default TodoCard;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#e7e7e7",
-    padding: 10,
+    backgroundColor: "#f9f9f9",
+    padding: 15,
     marginVertical: 10,
     elevation: 5,
     borderRadius: 10,
     flexDirection: "row",
     gap: 10,
+    justifyContent: "space-between",
   },
   check: {
     height: 20,
