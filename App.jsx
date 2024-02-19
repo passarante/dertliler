@@ -7,20 +7,34 @@ import {
   Keyboard,
   TouchableOpacity,
   FlatList,
+  Modal,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AntDesign } from "@expo/vector-icons";
 import TodoCard from "./src/components/TodoCard";
-
+import { setStorageData, getStorageData } from "./src/helpers/storageHelper";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { mockTodos } from "./src/data/todos";
+import TodoCategoryCard from "./src/components/TodoCategoryCard";
+import {
+  useFonts,
+  ArchitectsDaughter_400Regular,
+} from "@expo-google-fonts/architects-daughter";
 const App = () => {
   // const [name, setName] = useState("");
   // const [lastname, setLastname] = useState("");
 
   const [todos, setTodos] = useState([]);
+  const [todoCategories, setTodoCategories] = useState([]);
   const [title, setTitle] = useState("");
+  const [showModal, setShowModal] = useState(false);
+
+  let [fontsLoaded] = useFonts({
+    ArchitectsDaughter_400Regular,
+  });
 
   useEffect(() => {
+    //AsyncStorage.clear();
     // setStorageData("@appName", "DertlilerApp");
     //setStorageData("@appVersion", "1.0.0.1");
     // getStorageData("@appName");
@@ -35,52 +49,39 @@ const App = () => {
     //   setLastname(user.lastname);
     // });
     //removeStorageData("@todos");
-    getStorageData("@todos").then((res) => {
-      if (res != null) {
-        setTodos(JSON.parse(res));
+
+    // getStorageData("@todos").then((res) => {
+    //   if (res != null) {
+    //     setTodos(res);
+    //   }
+    // });
+    const categories = [];
+
+    mockTodos.forEach((mt) => {
+      if (!categories.includes(mt.category)) {
+        categories.push(mt.category);
       }
     });
+
+    setTodoCategories(categories);
+
+    setTodos(mockTodos);
   }, []);
 
-  const setStorageData = async (key, value) => {
-    try {
-      await AsyncStorage.setItem(key, value);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  // const saveUserData = async () => {
+  //   if (name.length > 0 && lastname.length > 0) {
+  //     const user = {
+  //       name,
+  //       lastname,
+  //     };
 
-  const getStorageData = async (key) => {
-    try {
-      const result = await AsyncStorage.getItem(key);
-      return result;
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  //     await setStorageData("user", JSON.stringify(user));
 
-  const removeStorageData = async (key) => {
-    try {
-      await AsyncStorage.removeItem(key);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const saveUserData = async () => {
-    if (name.length > 0 && lastname.length > 0) {
-      const user = {
-        name,
-        lastname,
-      };
-
-      await setStorageData("user", JSON.stringify(user));
-
-      Keyboard.dismiss();
-    } else {
-      alert("Please fill your name and lastname");
-    }
-  };
+  //     Keyboard.dismiss();
+  //   } else {
+  //     alert("Please fill your name and lastname");
+  //   }
+  // };
 
   const saveTodo = () => {
     if (title == "") {
@@ -98,9 +99,10 @@ const App = () => {
       tempTodos.push(todo);
       setTodos(tempTodos);
       //setTodos([...todos, todo]);
-      setStorageData("@todos", JSON.stringify(tempTodos));
+      setStorageData("@todos", tempTodos);
       setTitle("");
       Keyboard.dismiss();
+      setShowModal(false);
     }
   };
 
@@ -109,18 +111,47 @@ const App = () => {
     const res = todos.find((t) => t.id == id);
     console.log(res);
     res.completed = !res.completed;
-    setStorageData("@todos", JSON.stringify(tempTodos));
+    setStorageData("@todos", tempTodos);
     setTodos(tempTodos);
   };
 
   const deleteTodo = (id) => {
     let tempTodos = todos.filter((t) => t.id != id);
-    setStorageData("@todos", JSON.stringify(tempTodos));
+    setStorageData("@todos", tempTodos);
     setTodos(tempTodos);
   };
 
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
     <View style={styles.container}>
+      {/* <Modal visible={showModal} transparent animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <TouchableOpacity
+              style={styles.closeModalBtn}
+              onPress={() => setShowModal(false)}
+            >
+              <AntDesign size={18} color={"white"} name="close" />
+            </TouchableOpacity>
+            <View>
+              <View style={styles.formContainer}>
+                <TextInput
+                  value={title}
+                  onChangeText={setTitle}
+                  style={styles.input}
+                  placeholder="Todo desc..."
+                />
+                <TouchableOpacity onPress={saveTodo}>
+                  <AntDesign name="plussquareo" size={30} color="green" />
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </View>
+      </Modal> */}
       {/* <TextInput
         value={name}
         onChangeText={setName}
@@ -134,19 +165,11 @@ const App = () => {
         style={styles.input}
       />
       <Button title="Save" onPress={saveUserData} /> */}
-      <View style={styles.formContainer}>
-        <TextInput
-          value={title}
-          onChangeText={setTitle}
-          style={styles.input}
-          placeholder="Todo desc..."
-        />
-        <TouchableOpacity onPress={saveTodo}>
-          <AntDesign name="plussquareo" size={30} color="green" />
-        </TouchableOpacity>
-      </View>
-      <View>
-        <FlatList
+      {/* <Button title="Open Modal" onPress={() => setShowModal(true)} /> */}
+
+      <View style={{}}>
+        <Text style={styles.appTitle}>GnyNotes</Text>
+        {/* <FlatList
           data={todos}
           renderItem={({ item }) => (
             <TodoCard
@@ -154,6 +177,18 @@ const App = () => {
               toggleTodoStatus={toggleTodoStatus}
               deleteTodo={deleteTodo}
             />
+          )}
+        /> */}
+        <FlatList
+          contentContainerStyle={{
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          data={todoCategories}
+          showsHorizontalScrollIndicator={false}
+          horizontal
+          renderItem={({ item }) => (
+            <TodoCategoryCard item={item} todos={todos} />
           )}
         />
       </View>
@@ -168,6 +203,14 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 80,
     padding: 20,
+    backgroundColor: "#333",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  appTitle: {
+    fontFamily: "ArchitectsDaughter_400Regular",
+    fontSize: 80,
+    color: "#b1fd54",
   },
   input: {
     backgroundColor: "#fbf9f9",
@@ -183,5 +226,31 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 10,
     marginBottom: 10,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    // backgroundColor: "red",
+  },
+  modalContent: {
+    width: "90%",
+    height: "25%",
+    backgroundColor: "#f7bdbd",
+    justifyContent: "center",
+    alignItems: "center",
+    position: "relative",
+    borderRadius: 20,
+  },
+  closeModalBtn: {
+    position: "absolute",
+    backgroundColor: "red",
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    top: 20,
+    right: 20,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
