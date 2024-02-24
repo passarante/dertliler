@@ -10,8 +10,11 @@ import {
 import React, { useEffect, useState } from "react";
 import { AntDesign } from "@expo/vector-icons";
 import TodoCard from "./TodoCard";
+import { useNavigation } from "@react-navigation/native";
 
 const TodoCategoryCard = (props) => {
+  const navigation = useNavigation();
+
   const [categoryTodos, setCategoryTodos] = useState([]);
   const [completedTodos, setCompletedTodos] = useState(0);
   const [categoryColor, setCategoryColor] = useState("");
@@ -32,9 +35,9 @@ const TodoCategoryCard = (props) => {
     <TouchableOpacity
       activeOpacity={0.8}
       style={[styles.container, { backgroundColor: categoryColor }]}
-      onPress={() => setShowModal(true)}
+      onPress={() => navigation.navigate("TodoCategory", { todo: item })}
     >
-      <Modal visible={showModal}>
+      {/* <Modal visible={showModal}>
         <View
           style={[styles.modalContainer, { backgroundColor: categoryColor }]}
         >
@@ -66,7 +69,7 @@ const TodoCategoryCard = (props) => {
             </View>
           </View>
         </View>
-      </Modal>
+      </Modal> */}
       <Text style={styles.name}>{item}</Text>
       <View style={styles.statsContainer}>
         <Text style={styles.statText}>{completedTodos}</Text>

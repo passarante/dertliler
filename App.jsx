@@ -1,256 +1,100 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-  Button,
-  Keyboard,
-  TouchableOpacity,
-  FlatList,
-  Modal,
-} from "react-native";
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import HomeScreen from "./src/screens/HomeScreen";
+import AddTodoScreen from "./src/screens/AddTodoScreen";
 import { AntDesign } from "@expo/vector-icons";
-import TodoCard from "./src/components/TodoCard";
-import { setStorageData, getStorageData } from "./src/helpers/storageHelper";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { mockTodos } from "./src/data/todos";
-import TodoCategoryCard from "./src/components/TodoCategoryCard";
+import TodoCategory from "./src/screens/TodoCategory";
 import {
   useFonts,
   ArchitectsDaughter_400Regular,
 } from "@expo-google-fonts/architects-daughter";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import LoginScreen from "./src/screens/LoginScreen";
+
+const Stack = createNativeStackNavigator();
+
+const Tab = createBottomTabNavigator();
+
 const App = () => {
-  // const [name, setName] = useState("");
-  // const [lastname, setLastname] = useState("");
-
-  const [todos, setTodos] = useState([]);
-  const [todoCategories, setTodoCategories] = useState([]);
-  const [title, setTitle] = useState("");
-  const [showModal, setShowModal] = useState(false);
-
   let [fontsLoaded] = useFonts({
     ArchitectsDaughter_400Regular,
   });
 
-  useEffect(() => {
-    //AsyncStorage.clear();
-    // setStorageData("@appName", "DertlilerApp");
-    //setStorageData("@appVersion", "1.0.0.1");
-    // getStorageData("@appName");
-    // getStorageData("@appVersion");
-    // removeStorageData("name");
-    // removeStorageData("lastname");
-    // getStorageData("name").then((res) => setName(res));
-    // getStorageData("lastname").then((res) => setLastname(res));
-    // getStorageData("user").then((res) => {
-    //   const user = JSON.parse(res);
-    //   setName(user.name);
-    //   setLastname(user.lastname);
-    // });
-    //removeStorageData("@todos");
+  if (!fontsLoaded) return null;
 
-    // getStorageData("@todos").then((res) => {
-    //   if (res != null) {
-    //     setTodos(res);
-    //   }
-    // });
-    const categories = [];
-
-    mockTodos.forEach((mt) => {
-      if (!categories.includes(mt.category)) {
-        categories.push(mt.category);
-      }
-    });
-
-    setTodoCategories(categories);
-
-    setTodos(mockTodos);
-  }, []);
-
-  // const saveUserData = async () => {
-  //   if (name.length > 0 && lastname.length > 0) {
-  //     const user = {
-  //       name,
-  //       lastname,
-  //     };
-
-  //     await setStorageData("user", JSON.stringify(user));
-
-  //     Keyboard.dismiss();
-  //   } else {
-  //     alert("Please fill your name and lastname");
-  //   }
-  // };
-
-  const saveTodo = () => {
-    if (title == "") {
-      alert("Title is required");
-    } else {
-      let tempTodos = todos;
-
-      //spread operator ...
-
-      const todo = {
-        id: Math.floor(Math.random() * 1000000),
-        title,
-        completed: false,
-      };
-      tempTodos.push(todo);
-      setTodos(tempTodos);
-      //setTodos([...todos, todo]);
-      setStorageData("@todos", tempTodos);
-      setTitle("");
-      Keyboard.dismiss();
-      setShowModal(false);
-    }
+  const AppStack = () => {
+    return (
+      <Stack.Navigator>
+        <Stack.Screen
+          name="Home"
+          component={HomeScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen name="LoginScreen" component={LoginScreen} />
+      </Stack.Navigator>
+    );
   };
-
-  const toggleTodoStatus = (id) => {
-    let tempTodos = todos;
-    const res = todos.find((t) => t.id == id);
-    console.log(res);
-    res.completed = !res.completed;
-    setStorageData("@todos", tempTodos);
-    setTodos(tempTodos);
-  };
-
-  const deleteTodo = (id) => {
-    let tempTodos = todos.filter((t) => t.id != id);
-    setStorageData("@todos", tempTodos);
-    setTodos(tempTodos);
-  };
-
-  if (!fontsLoaded) {
-    return null;
-  }
 
   return (
-    <View style={styles.container}>
-      {/* <Modal visible={showModal} transparent animationType="slide">
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <TouchableOpacity
-              style={styles.closeModalBtn}
-              onPress={() => setShowModal(false)}
-            >
-              <AntDesign size={18} color={"white"} name="close" />
-            </TouchableOpacity>
-            <View>
-              <View style={styles.formContainer}>
-                <TextInput
-                  value={title}
-                  onChangeText={setTitle}
-                  style={styles.input}
-                  placeholder="Todo desc..."
-                />
-                <TouchableOpacity onPress={saveTodo}>
-                  <AntDesign name="plussquareo" size={30} color="green" />
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        </View>
-      </Modal> */}
-      {/* <TextInput
-        value={name}
-        onChangeText={setName}
-        placeholder="Your name"
-        style={styles.input}
-      />
-      <TextInput
-        value={lastname}
-        onChangeText={setLastname}
-        placeholder="Lastname"
-        style={styles.input}
-      />
-      <Button title="Save" onPress={saveUserData} /> */}
-      {/* <Button title="Open Modal" onPress={() => setShowModal(true)} /> */}
-
-      <View style={{}}>
-        <Text style={styles.appTitle}>GnyNotes</Text>
-        {/* <FlatList
-          data={todos}
-          renderItem={({ item }) => (
-            <TodoCard
-              item={item}
-              toggleTodoStatus={toggleTodoStatus}
-              deleteTodo={deleteTodo}
-            />
-          )}
-        /> */}
-        <FlatList
-          contentContainerStyle={{
-            alignItems: "center",
-            justifyContent: "center",
+    <NavigationContainer>
+      <Tab.Navigator
+        screenOptions={{
+          headerShown: false,
+          tabBarActiveTintColor: "red",
+          tabBarInactiveTintColor: "gray",
+          tabBarStyle: {
+            backgroundColor: "#121212",
+            height: 60,
+            padding: 10,
+          },
+        }}
+      >
+        <Tab.Screen
+          name="HomeScreen"
+          component={AppStack}
+          options={{
+            tabBarIcon: ({ focused, color, size }) => (
+              <AntDesign name="home" size={size} color={color} />
+            ),
+            title: "Anasayfa",
+            tabBarLabelStyle: {
+              fontSize: 16,
+              fontFamily: "ArchitectsDaughter_400Regular",
+            },
           }}
-          data={todoCategories}
-          showsHorizontalScrollIndicator={false}
-          horizontal
-          renderItem={({ item }) => (
-            <TodoCategoryCard item={item} todos={todos} />
-          )}
         />
-      </View>
-    </View>
+        <Tab.Screen
+          name="TodoCategory"
+          component={TodoCategory}
+          options={{
+            tabBarIcon: ({ focused, color, size }) => (
+              <AntDesign name="swap" size={size} color={color} />
+            ),
+            title: "Todo Ekle",
+            tabBarLabelStyle: {
+              fontSize: 16,
+              fontFamily: "ArchitectsDaughter_400Regular",
+            },
+          }}
+        />
+        <Tab.Screen
+          name="AddTodo"
+          component={AddTodoScreen}
+          options={{
+            tabBarIcon: ({ focused, color, size }) => (
+              <AntDesign name="barschart" size={size} color={color} />
+            ),
+            title: "Todo Detay",
+            tabBarLabelStyle: {
+              fontSize: 16,
+              fontFamily: "ArchitectsDaughter_400Regular",
+            },
+          }}
+        />
+      </Tab.Navigator>
+    </NavigationContainer>
   );
 };
 
 export default App;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    marginTop: 80,
-    padding: 20,
-    backgroundColor: "#333",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  appTitle: {
-    fontFamily: "ArchitectsDaughter_400Regular",
-    fontSize: 80,
-    color: "#b1fd54",
-  },
-  input: {
-    backgroundColor: "#fbf9f9",
-    width: "80%",
-    padding: 5,
-    marginVertical: 10,
-    height: 50,
-    borderRadius: 5,
-  },
-  formContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 10,
-    marginBottom: 10,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    // backgroundColor: "red",
-  },
-  modalContent: {
-    width: "90%",
-    height: "25%",
-    backgroundColor: "#f7bdbd",
-    justifyContent: "center",
-    alignItems: "center",
-    position: "relative",
-    borderRadius: 20,
-  },
-  closeModalBtn: {
-    position: "absolute",
-    backgroundColor: "red",
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    top: 20,
-    right: 20,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-});
